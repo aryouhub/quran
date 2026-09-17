@@ -1,5 +1,19 @@
 export type Language = 'fa' | 'ar' | 'en' | 'ur' | 'tr' | 'id' | 'fr' | 'de' | 'es' | 'ru' | 'zh';
 
+export const languageNames: Record<Language, string> = {
+  fa: 'فارسی',
+  ar: 'العربية',
+  en: 'English',
+  ur: 'اردو',
+  tr: 'Türkçe',
+  id: 'Bahasa Indonesia',
+  fr: 'Français',
+  de: 'Deutsch',
+  es: 'Español',
+  ru: 'Русский',
+  zh: '中文',
+};
+
 export interface Translations {
   siteTitle: string;
   surahs: string;
@@ -614,18 +628,4 @@ export const translations: Record<Language, Translations> = {
     fontSizePreview: '这是字体大小的预览文本',
     bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
   },
-};
-
-export const languageNames: Record<Language, string> = {
-  fa: 'فارسی',
-  ar: 'العربية',
-  en: 'English',
-  ur: 'اردو',
-  tr: 'Türkçe',
-  id: 'Bahasa Indonesia',
-  fr: 'Français',
-  de: 'Deutsch',
-  es: 'Español',
-  ru: 'Русский',
-  zh: '中文',
 };

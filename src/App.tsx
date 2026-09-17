@@ -1,87 +1,131 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { Surah, surahs, getSurahName } from './data/surahs';
+import { useAudioPlayer } from './hooks/useAudioPlayer';
+import { useSettings } from './context/SettingsContext';
+import { useLanguage } from './context/LanguageContext';
+import { toPersianNumber } from './utils/persianNumber';
+import { quickSettingsTranslations, surahInfoTranslations, getRecitationStyle } from './data/translationHelpers';
+import { juzData, hizbData } from './data/quranStructure';
+import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
+import { Player } from './components/Player';
+import { AyahDisplay } from './components/AyahDisplay';
+import { SettingsPage } from './components/SettingsPage';
 
-const surahs = Array.from({ length: 114 }, (_, i) => ({
-  number: i + 1,
-  name: `Surah ${i + 1}`,
-  persianName: `Chapter ${i + 1}`,
-  englishName: `Surah ${i + 1}`,
-  ayahs: Math.floor(Math.random() * 20) + 3,
-  type: i < 86 ? 'Meccan' : 'Medinan'
-}));
-
-const translations = {
-  fa: { title: 'Quran App', surahs: 'Surahs', settings: 'Settings', read: 'Read', selectSurah: 'Select a Surah', navigation: 'Navigation', ayah: 'Ayah', from: 'from' },
-  ar: { title: 'Quran App', surahs: 'Surahs', settings: 'Settings', read: 'Read', selectSurah: 'Select a Surah', navigation: 'Navigation', ayah: 'Ayah', from: 'from' },
-  en: { title: 'Quran App', surahs: 'Surahs', settings: 'Settings', read: 'Read', selectSurah: 'Select a Surah', navigation: 'Navigation', ayah: 'Ayah', from: 'from' }
-};
-
-export default function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [lang, setLang] = useState<'fa' | 'ar' | 'en'>('fa');
-  const [selectedSurah, setSelectedSurah] = useState<number | null>(null);
+function App() {
+  const { t, language } = useLanguage();
+  const qs = quickSettingsTranslations[language];
+  const si = surahInfoTranslations[language];
+  const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
-  const [immersiveMode, setImmersiveMode] = useState(false);
-  const [currentAyah, setCurrentAyah] = useState(1);
-  
-  const t = translations[lang];
 
+  const {
+    state: audioState,
+    loadSurah,
+    togglePlay,
+    toggleRepeat,
+    cycleSpeed,
+    seekToAyah,
+    nextAyah,
+    prevAyah,
+  } = useAudioPlayer();
+
+  const handleSelectSurah = useCallback((surah: Surah) => {
+    setSelectedSurah(surah);
+    loadSurah(surah.number);
+  }, [loadSurah]);
+
+  const handleAyahClick = useCallback((ayahNumber: number) => {
+    if (selectedSurah) {
+      seekToAyah(ayahNumber);
+    }
+  }, [seekToAyah, selectedSurah]);
+
+  const handleTogglePlay = useCallback(() => {
+    if (!selectedSurah) {
+      const firstSurah = surahs[0];
+      setSelectedSurah(firstSurah);
+      loadSurah(firstSurah.number);
+    } else {
+      togglePlay();
+    }
+  }, [selectedSurah, togglePlay, loadSurah]);
+
+  const { settings } = useSettings();
+  const prevSettingsRef = useRef({ reciter: settings.reciter, translator: settings.translator });
+  
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    document.documentElement.classList.toggle('light', theme === 'light');
-  }, [theme]);
+    const prevSettings = prevSettingsRef.current;
+    const hasChanged = 
+      prevSettings.reciter !== settings.reciter || 
+      prevSettings.translator !== settings.translator;
+    
+    if (hasChanged && selectedSurah) {
+      loadSurah(selectedSurah.number);
+      prevSettingsRef.current = { reciter: settings.reciter, translator: settings.translator };
+    }
+  }, [settings.reciter, settings.translator, selectedSurah, loadSurah]);
+
+  const currentJuz = useMemo(() => {
+    if (!selectedSurah || !audioState.currentAyah) return null;
+    return juzData.find(j => {
+      const start = j.startSurah * 1000 + j.startAyah;
+      const end = j.endSurah * 1000 + j.endAyah;
+      const current = selectedSurah.number * 1000 + audioState.currentAyah;
+      return current >= start && current <= end;
+    });
+  }, [selectedSurah, audioState.currentAyah]);
+
+  const currentHizb = useMemo(() => {
+    if (!selectedSurah || !audioState.currentAyah) return null;
+    return hizbData.find(h => {
+      const start = h.startSurah * 1000 + h.startAyah;
+      const end = h.endSurah * 1000 + h.endAyah;
+      const current = selectedSurah.number * 1000 + audioState.currentAyah;
+      return current >= start && current <= end;
+    });
+  }, [selectedSurah, audioState.currentAyah]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors" dir={lang === 'en' ? 'ltr' : 'rtl'}>
-      <header className={`fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30 flex items-center justify-between px-4 transition-all ${immersiveMode ? 'hidden md:flex' : ''}`}>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <h1 className="text-lg font-bold">{t.title}</h1>
-        <div className="flex items-center gap-2">
-          <select value={lang} onChange={(e) => setLang(e.target.value as any)} className="text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1">
-            <option value="fa">فارسی</option>
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-          </select>
-          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-            {theme === 'dark' ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-            )}
-          </button>
-          <button onClick={() => setImmersiveMode(!immersiveMode)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" title={t.read}>
-            <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
-        </div>
-      </header>
-
-      {sidebarOpen && (
-        <aside className="fixed inset-0 bg-white dark:bg-gray-800 z-50 overflow-y-auto">
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{t.surahs}</h2>
-              <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <div className="min-h-screen bg-theme-primary text-theme-primary">
+      {/* Sidebar - Desktop Only (Full Height, Independent) */}
+      {desktopSidebarOpen && (
+        <aside className="hidden md:block fixed top-0 right-0 w-80 lg:w-96 xl:w-[28rem] h-screen bg-theme-primary border-l border-theme z-20 transition-all duration-300">
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b border-theme">
+              <h2 className="text-theme-primary text-lg font-bold flex items-center gap-2">
+                <svg className="w-6 h-6 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
                 </svg>
-              </button>
+                <span>{t.surahs}</span>
+              </h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="flex-1 overflow-y-auto">
               {surahs.map((surah) => (
                 <button
                   key={surah.number}
-                  onClick={() => { setSelectedSurah(surah.number); setSidebarOpen(false); setCurrentAyah(1); }}
-                  className={`p-3 rounded-lg text-right transition-all ${selectedSurah === surah.number ? 'bg-emerald-500 text-white scale-105' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                  onClick={() => handleSelectSurah(surah)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-theme-hover transition-colors text-right border-b border-theme ${
+                    selectedSurah?.number === surah.number ? 'bg-emerald-900/20 border-r-2 border-r-emerald-500' : ''
+                  }`}
                 >
-                  <div className="font-bold text-sm">{surah.number}</div>
-                  <div className="text-xs mt-1">{lang === 'en' ? surah.englishName : surah.name}</div>
+                  <div className="w-10 h-10 rounded-lg bg-theme-tertiary flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
+                    {toPersianNumber(surah.number)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-theme-primary font-medium text-sm truncate">{getSurahName(surah, language)}</span>
+                      <span className="text-emerald-400 text-sm shrink-0">{surah.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <span className="text-theme-muted text-xs">{toPersianNumber(surah.numberOfAyahs)} {t.ayah}</span>
+                      <span className={`text-xs ${surah.revelationType === 'Meccan' ? 'text-amber-400/70' : 'text-blue-400/70'}`}>
+                        {surah.revelationType === 'Meccan' ? t.meccan : t.medinan}
+                      </span>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -89,87 +133,105 @@ export default function App() {
         </aside>
       )}
 
-      <main className={`pt-14 transition-all ${immersiveMode ? 'pb-0' : 'pb-20'}`}>
-        {selectedSurah ? (
-          <div className="p-4 max-w-4xl mx-auto">
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold mb-2">{surahs[selectedSurah - 1]?.name}</h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {t.ayah} {currentAyah} {t.from} {surahs[selectedSurah - 1]?.ayahs}
-              </p>
-            </div>
-            <div className="space-y-4">
-              {Array.from({ length: surahs[selectedSurah - 1]?.ayahs || 0 }, (_, i) => (
-                <div
-                  key={i}
-                  onClick={() => setCurrentAyah(i + 1)}
-                  className={`p-4 rounded-lg cursor-pointer transition-all ${currentAyah === i + 1 ? 'bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">
-                      {i + 1}
+      {/* Header - Minimal (Only on Main Content Area) */}
+      <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
+        <Header 
+          onToggleSidebar={() => {
+            if (window.innerWidth < 768) {
+              setSidebarOpen(!sidebarOpen);
+            } else {
+              setDesktopSidebarOpen(!desktopSidebarOpen);
+            }
+          }}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
+      </div>
+
+      {/* Main Content Area - Adaptive Layout */}
+      <div className={`transition-all duration-300 pt-14 pb-24 ${desktopSidebarOpen ? 'md:pr-80 lg:pr-96 xl:pr-[28rem]' : ''}`}>
+        <main className="min-h-screen">
+          {selectedSurah && (
+            <div className="px-4 sm:px-6 py-4 border-b border-theme/50">
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-lg sm:text-xl font-bold text-theme-primary mb-1">
+                  {getSurahName(selectedSurah, language)}
+                </h2>
+                <p className="text-theme-muted text-xs">
+                  {t.ayah} {toPersianNumber(audioState.currentAyah || 1)} {qs.from} {toPersianNumber(selectedSurah.numberOfAyahs)}
+                </p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium ${
+                    selectedSurah.revelationType === 'Meccan'
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  }`}>
+                    {selectedSurah.revelationType === 'Meccan' ? t.meccan : t.medinan}
+                  </span>
+                  {currentJuz && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                      {si.juz} {toPersianNumber(currentJuz.number)}
                     </span>
-                    {currentAyah === i + 1 && (
-                      <span className="text-emerald-500 text-sm font-medium">{t.read}</span>
-                    )}
-                  </div>
-                  <p className="text-lg text-right leading-loose">
-                    In the name of God, the Most Gracious, the Most Merciful
-                  </p>
+                  )}
+                  {currentHizb && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                      {si.hizb} {toPersianNumber(currentHizb.number)}
+                    </span>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center cursor-pointer hover:scale-105 transition-transform" onClick={() => {
-              // Open sidebar on all devices
-              if (window.innerWidth < 768) {
-                setSidebarOpen(true);
-              } else {
-                setDesktopSidebarOpen(true);
-              }
-            }}>
-              <svg className="w-24 h-24 mx-auto mb-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              <h3 className="text-xl font-bold mb-2">{t.selectSurah}</h3>
-            </div>
-          </div>
-        )}
-      </main>
+          )}
 
-      {!immersiveMode && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex items-center justify-center gap-4">
-            <button className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white transition-colors">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </button>
+          <div className="overflow-y-auto">
+            <AyahDisplay
+              surahNumber={selectedSurah?.number || 0}
+              currentAyah={audioState.currentAyah}
+              onAyahClick={handleAyahClick}
+              isLoading={audioState.isLoading && audioState.currentAyah === 0 && !audioState.isFinished}
+              onOpenSidebar={() => {
+                if (window.innerWidth < 768) {
+                  setSidebarOpen(true);
+                } else {
+                  setDesktopSidebarOpen(true);
+                }
+              }}
+            />
           </div>
-        </div>
+        </main>
+      </div>
+
+      {/* Sidebar - Mobile Only (Overlay) */}
+      <div className="md:hidden">
+        <Sidebar
+          selectedSurah={selectedSurah}
+          onSelectSurah={handleSelectSurah}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </div>
+
+      {/* Settings Page */}
+      {settingsOpen && (
+        <SettingsPage
+          isOpen={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+        />
       )}
 
-      {immersiveMode && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-full px-3 py-2 shadow-lg">
-          <button onClick={() => setSidebarOpen(true)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title={t.surahs}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <button className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title={t.navigation}>
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-          </button>
-          <button onClick={() => setImmersiveMode(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      )}
+      {/* Player - Tablet & Desktop Only */}
+      <div className={`hidden md:block fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
+        <Player
+          state={audioState}
+          surahName={selectedSurah ? getSurahName(selectedSurah, language) : 'Quran'}
+          surahEnglishName={selectedSurah?.englishName || 'Quran'}
+          onTogglePlay={handleTogglePlay}
+          onToggleRepeat={toggleRepeat}
+          onCycleSpeed={cycleSpeed}
+          onOpenQuickSettings={() => setSettingsOpen(true)}
+        />
+      </div>
     </div>
   );
 }
+
+export default App;
