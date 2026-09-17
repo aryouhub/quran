@@ -3,10 +3,12 @@ import { useLanguage } from '../context/LanguageContext';
 interface HeaderProps {
   onToggleSidebar: () => void;
   onOpenSettings: () => void;
+  onToggleImmersive: () => void;
+  immersiveMode: boolean;
 }
 
-export function Header({ onToggleSidebar, onOpenSettings }: HeaderProps) {
-  const { t } = useLanguage();
+export function Header({ onToggleSidebar, onOpenSettings, onToggleImmersive, immersiveMode }: HeaderProps) {
+  const { t, language } = useLanguage();
 
   return (
     <header className="h-14 bg-theme-primary/95 backdrop-blur-md border-b border-theme/50 flex items-center justify-between px-3 sm:px-4">
@@ -24,6 +26,22 @@ export function Header({ onToggleSidebar, onOpenSettings }: HeaderProps) {
       </h1>
 
       <div className="flex items-center gap-1">
+        {/* Immersive Mode Button - Mobile Only */}
+        <button
+          onClick={onToggleImmersive}
+          className={`md:hidden p-2 rounded-lg transition-colors ${
+            immersiveMode 
+              ? 'text-emerald-400 bg-emerald-500/10' 
+              : 'text-theme-muted hover:text-theme-primary hover:bg-theme-hover'
+          }`}
+          title={language === 'fa' ? 'حالت مطالعه' : language === 'ar' ? 'وضع القراءة' : 'Reading Mode'}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" className="w-5 h-5">
+            <path d="M0 0h512v512H0z" fill="none" />
+            <path fill="currentColor" fillRule="evenodd" d="M331.52 117.547c0 41.386-33.707 74.88-74.88 74.88c-41.387 0-74.88-33.494-74.88-74.88c0-41.387 33.493-74.88 74.88-74.88s74.88 33.493 74.88 74.88m-96.853 125.748L64 157.867v215.04l170.667 85.428zm42.666 215.681l171.947-86.069v-215.04l-171.947 86.069z" clipRule="evenodd" />
+          </svg>
+        </button>
+
         <button
           onClick={onOpenSettings}
           className="text-theme-muted hover:text-theme-primary p-2 rounded-lg hover:bg-theme-hover transition-colors"

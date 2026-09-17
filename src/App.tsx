@@ -22,6 +22,7 @@ function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [surahFilter, setSurahFilter] = useState<'all' | 'meccan' | 'medinan'>('all');
   const [surahSearch, setSurahSearch] = useState('');
+  const [immersiveMode, setImmersiveMode] = useState(false);
 
   const {
     state: audioState,
@@ -208,6 +209,8 @@ function App() {
             }
           }}
           onOpenSettings={() => setSettingsOpen(true)}
+          onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
+          immersiveMode={immersiveMode}
         />
       </div>
 
@@ -292,6 +295,8 @@ function App() {
           onToggleRepeat={toggleRepeat}
           onCycleSpeed={cycleSpeed}
           onOpenQuickSettings={() => setSettingsOpen(true)}
+          onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
+          immersiveMode={immersiveMode}
         />
       </div>
     </div>

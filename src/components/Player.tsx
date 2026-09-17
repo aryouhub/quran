@@ -10,6 +10,8 @@ interface PlayerProps {
   onToggleRepeat: () => void;
   onCycleSpeed: () => void;
   onOpenQuickSettings: () => void;
+  onToggleImmersive: () => void;
+  immersiveMode: boolean;
 }
 
 export function Player({
@@ -20,6 +22,8 @@ export function Player({
   onToggleRepeat,
   onCycleSpeed,
   onOpenQuickSettings,
+  onToggleImmersive,
+  immersiveMode,
 }: PlayerProps) {
   const { t, language } = useLanguage();
 
@@ -67,20 +71,25 @@ export function Player({
       </div>
 
       <div className="px-2 sm:px-4 pb-2 sm:pb-3 flex items-center justify-between gap-1">
-        <div className="hidden sm:flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shrink-0 shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 3L4 9v12h16V9l-8-6zm0 2.5L18 10v9H6v-9l6-4.5zM11 13h2v5h-2v-5z"/>
+        {/* Desktop: Immersive Mode Button */}
+        <div className="hidden sm:flex items-center gap-2 flex-1">
+          <button
+            onClick={onToggleImmersive}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              immersiveMode 
+                ? 'bg-emerald-500/10 text-emerald-400' 
+                : 'text-theme-muted hover:text-theme-primary hover:bg-theme-hover'
+            }`}
+            title={language === 'fa' ? 'حالت مطالعه' : language === 'ar' ? 'وضع القراءة' : 'Reading Mode'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" className="w-5 h-5">
+              <path d="M0 0h512v512H0z" fill="none" />
+              <path fill="currentColor" fillRule="evenodd" d="M331.52 117.547c0 41.386-33.707 74.88-74.88 74.88c-41.387 0-74.88-33.494-74.88-74.88c0-41.387 33.493-74.88 74.88-74.88s74.88 33.493 74.88 74.88m-96.853 125.748L64 157.867v215.04l170.667 85.428zm42.666 215.681l171.947-86.069v-215.04l-171.947 86.069z" clipRule="evenodd" />
             </svg>
-          </div>
-          <div className="min-w-0">
-            <p className="text-theme-primary text-sm font-semibold truncate">{surahName}</p>
-            <p className="text-theme-muted text-xs truncate">
-              {state.currentAyah > 0
-                ? `${t.ayah} ${toPersianNumber(state.currentAyah)} ${language === 'fa' ? 'از' : '/'} ${toPersianNumber(state.totalAyahs)}`
-                : surahEnglishName}
-            </p>
-          </div>
+            <span className="text-sm font-medium">
+              {language === 'fa' ? 'مطالعه' : language === 'ar' ? 'قراءة' : 'Read'}
+            </span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 mx-auto sm:mx-0">
