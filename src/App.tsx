@@ -353,9 +353,9 @@ function App() {
               isLoading={audioState.isLoading && audioState.currentAyah === 0 && !audioState.isFinished}
               onOpenSidebar={() => {
                 if (window.innerWidth < 768) {
-                  setSidebarOpen(true);
+                  setSidebarOpen(!sidebarOpen);
                 } else {
-                  setDesktopSidebarOpen(true);
+                  setDesktopSidebarOpen(!desktopSidebarOpen);
                 }
               }}
               immersiveMode={immersiveMode}
@@ -400,14 +400,13 @@ function App() {
         }}
         currentSurah={selectedSurah?.number}
         currentAyah={audioState.currentAyah}
-        onOpenSidebar={() => {
-          if (window.innerWidth < 768) {
-            setSidebarOpen(true);
-          } else {
-            setDesktopSidebarOpen(true);
-          }
-        }}
-      />
+              onOpenSidebar={() => {
+                if (window.innerWidth < 768) {
+                  setSidebarOpen(!sidebarOpen);
+                } else {
+                  setDesktopSidebarOpen(!desktopSidebarOpen);
+                }
+              }}      />
 
       {/* Player - Tablet & Desktop Only (Hidden in Immersive Mode) */}
       {!immersiveMode && (
