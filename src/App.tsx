@@ -200,27 +200,30 @@ function App() {
         </aside>
       )}
 
-      {/* Header - Minimal (Only on Main Content Area) */}
-      <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
-        <Header 
-          onToggleSidebar={() => {
-            if (window.innerWidth < 768) {
-              setSidebarOpen(!sidebarOpen);
-            } else {
-              setDesktopSidebarOpen(!desktopSidebarOpen);
-            }
-          }}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onOpenNavigation={() => setNavigationOpen(true)}
-          onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
-          immersiveMode={immersiveMode}
-        />
-      </div>
+      {/* Header - Hidden in Immersive Mode */}
+      {!immersiveMode && (
+        <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
+          <Header 
+            onToggleSidebar={() => {
+              if (window.innerWidth < 768) {
+                setSidebarOpen(!sidebarOpen);
+              } else {
+                setDesktopSidebarOpen(!desktopSidebarOpen);
+              }
+            }}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenNavigation={() => setNavigationOpen(true)}
+            onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
+            immersiveMode={immersiveMode}
+          />
+        </div>
+      )}
 
       {/* Main Content Area - Adaptive Layout */}
-      <div className={`transition-all duration-300 pt-14 pb-24 ${desktopSidebarOpen ? 'md:pr-80 lg:pr-96 xl:pr-[28rem]' : ''}`}>
+      <div className={`transition-all duration-300 ${immersiveMode ? 'pt-0 pb-0' : 'pt-14 pb-24'} ${desktopSidebarOpen ? 'md:pr-80 lg:pr-96 xl:pr-[28rem]' : ''}`}>
         <main className="min-h-screen">
-          {selectedSurah && (
+          {/* Surah Info - Hidden in Immersive Mode */}
+          {selectedSurah && !immersiveMode && (
             <div className="px-4 sm:px-6 py-4 border-b border-theme/50">
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-lg sm:text-xl font-bold text-theme-primary mb-1">
@@ -252,7 +255,7 @@ function App() {
             </div>
           )}
 
-          <div className="overflow-y-auto">
+          <div className={`overflow-y-auto ${immersiveMode ? 'h-screen' : ''}`}>
             <AyahDisplay
               surahNumber={selectedSurah?.number || 0}
               currentAyah={audioState.currentAyah}
@@ -265,6 +268,7 @@ function App() {
                   setDesktopSidebarOpen(true);
                 }
               }}
+              immersiveMode={immersiveMode}
             />
           </div>
         </main>

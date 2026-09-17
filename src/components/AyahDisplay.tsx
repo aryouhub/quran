@@ -17,9 +17,10 @@ interface AyahDisplayProps {
   onAyahClick: (ayahNumber: number) => void;
   isLoading: boolean;
   onOpenSidebar?: () => void;
+  immersiveMode?: boolean;
 }
 
-export function AyahDisplay({ surahNumber, currentAyah, onAyahClick, isLoading, onOpenSidebar }: AyahDisplayProps) {
+export function AyahDisplay({ surahNumber, currentAyah, onAyahClick, isLoading, onOpenSidebar, immersiveMode = false }: AyahDisplayProps) {
   const { settings } = useSettings();
   const { t } = useLanguage();
   const { isDark } = useTheme();
