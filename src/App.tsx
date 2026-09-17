@@ -20,6 +20,7 @@ function App() {
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [surahFilter, setSurahFilter] = useState<'all' | 'meccan' | 'medinan'>('all');
   const [surahSearch, setSurahSearch] = useState('');
@@ -210,6 +211,7 @@ function App() {
             }
           }}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenNavigation={() => setNavigationOpen(true)}
           onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
           immersiveMode={immersiveMode}
         />
@@ -285,6 +287,33 @@ function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+
+      {/* Navigation Panel */}
+      <NavigationPanel
+        isOpen={navigationOpen}
+        onClose={() => setNavigationOpen(false)}
+        onNavigate={(surah, ayah) => {
+          const surahData = surahs.find(s => s.number === surah);
+          if (surahData) {
+            if (selectedSurah?.number !== surah) {
+              setSelectedSurah(surahData);
+              loadSurah(surah);
+            }
+            if (ayah) {
+              seekToAyah(ayah);
+            }
+          }
+        }}
+        currentSurah={selectedSurah?.number}
+        currentAyah={audioState.currentAyah}
+        onOpenSidebar={() => {
+          if (window.innerWidth < 768) {
+            setSidebarOpen(true);
+          } else {
+            setDesktopSidebarOpen(true);
+          }
+        }}
+      />
 
       {/* Player - Tablet & Desktop Only */}
       <div className={`hidden md:block fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
