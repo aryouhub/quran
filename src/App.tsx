@@ -113,8 +113,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-theme-primary text-theme-primary">
-      {/* Sidebar - Desktop Only (Full Height, Independent) */}
-      {desktopSidebarOpen && (
+      {/* Sidebar - Desktop Only (Full Height, Independent) - Hidden in Immersive Mode */}
+      {!immersiveMode && desktopSidebarOpen && (
         <aside className="hidden md:block fixed top-0 right-0 w-80 lg:w-96 xl:w-[28rem] h-screen bg-theme-primary border-l border-theme z-20 transition-all duration-300">
           <div className="h-full flex flex-col">
             <div className="p-4 border-b border-theme">
