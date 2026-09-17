@@ -20,6 +20,8 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [surahFilter, setSurahFilter] = useState<'all' | 'meccan' | 'medinan'>('all');
+  const [surahSearch, setSurahSearch] = useState('');
 
   const {
     state: audioState,
@@ -88,6 +90,24 @@ function App() {
     });
   }, [selectedSurah, audioState.currentAyah]);
 
+  const filteredSurahs = useMemo(() => {
+    return surahs.filter(surah => {
+      const localizedName = getSurahName(surah, language);
+      const matchesSearch = !surahSearch || 
+        surah.name.includes(surahSearch) ||
+        surah.persianName.includes(surahSearch) ||
+        surah.englishName.toLowerCase().includes(surahSearch.toLowerCase()) ||
+        localizedName.toLowerCase().includes(surahSearch.toLowerCase()) ||
+        surah.number.toString() === surahSearch;
+      
+      const matchesFilter = surahFilter === 'all' ||
+        (surahFilter === 'meccan' && surah.revelationType === 'Meccan') ||
+        (surahFilter === 'medinan' && surah.revelationType === 'Medinan');
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [surahFilter, surahSearch, language]);
+
   return (
     <div className="min-h-screen bg-theme-primary text-theme-primary">
       {/* Sidebar - Desktop Only (Full Height, Independent) */}
@@ -95,15 +115,59 @@ function App() {
         <aside className="hidden md:block fixed top-0 right-0 w-80 lg:w-96 xl:w-[28rem] h-screen bg-theme-primary border-l border-theme z-20 transition-all duration-300">
           <div className="h-full flex flex-col">
             <div className="p-4 border-b border-theme">
-              <h2 className="text-theme-primary text-lg font-bold flex items-center gap-2">
+              <h2 className="text-theme-primary text-lg font-bold flex items-center gap-2 mb-3">
                 <svg className="w-6 h-6 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
                 </svg>
                 <span>{t.surahs}</span>
               </h2>
+              
+              {/* Search */}
+              <div className="relative mb-3">
+                <input
+                  type="text"
+                  placeholder={t.searchSurah}
+                  value={surahSearch}
+                  onChange={(e) => setSurahSearch(e.target.value)}
+                  className="w-full bg-theme-secondary text-theme-primary rounded-lg px-4 py-2.5 pr-10
+                             border border-theme focus:border-emerald-500 focus:outline-none
+                             placeholder-theme-dim text-sm"
+                />
+                <svg className="absolute right-3 top-3 w-4 h-4 text-theme-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {/* Filter */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSurahFilter('all')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'all' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.all}
+                </button>
+                <button
+                  onClick={() => setSurahFilter('meccan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'meccan' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.meccan}
+                </button>
+                <button
+                  onClick={() => setSurahFilter('medinan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'medinan' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.medinan}
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {surahs.map((surah) => (
+              {filteredSurahs.map((surah) => (
                 <button
                   key={surah.number}
                   onClick={() => handleSelectSurah(surah)}
