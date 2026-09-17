@@ -489,7 +489,7 @@ function App() {
                   <button
                     onClick={() => {
                       if (window.innerWidth < 768) {
-                        setSidebarOpen(true);
+                        setSidebarOpen(!sidebarOpen);
                       } else {
                         setDesktopSidebarOpen(!desktopSidebarOpen);
                       }
@@ -504,7 +504,7 @@ function App() {
 
                   {/* Navigation Button */}
                   <button
-                    onClick={() => setNavigationOpen(true)}
+                    onClick={() => setNavigationOpen(!navigationOpen)}
                     className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
                     title={language === 'fa' ? 'ناوبری' : language === 'ar' ? 'التنقل' : 'Navigation'}
                   >
@@ -515,7 +515,7 @@ function App() {
 
                   {/* Quick Settings Button */}
                   <button
-                    onClick={() => setQuickSettingsOpen(true)}
+                    onClick={() => setQuickSettingsOpen(!quickSettingsOpen)}
                     className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
                     title={qs.quickSettings}
                   >
