@@ -435,78 +435,93 @@ function App() {
 
       {/* Floating Controls - Immersive Mode Only */}
       {immersiveMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-theme-secondary/95 backdrop-blur-lg rounded-full px-5 py-3 shadow-2xl border border-theme">
-          {/* Surahs Button */}
-          <button
-            onClick={() => {
-              if (window.innerWidth < 768) {
-                setSidebarOpen(true);
-              } else {
-                setDesktopSidebarOpen(true);
-              }
-            }}
-            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
-            title={t.surahs}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </button>
+        <div className="fixed bottom-6 left-0 right-0 z-50 px-4">
+          <div className="max-w-md mx-auto overflow-x-auto scrollbar-hide">
+            <div className="flex items-center justify-center gap-3 bg-theme-secondary/95 backdrop-blur-lg rounded-full px-5 py-3 shadow-2xl border border-theme w-max mx-auto">
+              {/* Surahs Button */}
+              <button
+                onClick={() => {
+                  if (window.innerWidth < 768) {
+                    setSidebarOpen(true);
+                  } else {
+                    setDesktopSidebarOpen(!desktopSidebarOpen);
+                  }
+                }}
+                className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                title={t.surahs}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </button>
 
-          {/* Navigation Button */}
-          <button
-            onClick={() => setNavigationOpen(true)}
-            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
-            title={language === 'fa' ? 'ناوبری' : language === 'ar' ? 'التنقل' : 'Navigation'}
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-          </button>
+              {/* Navigation Button */}
+              <button
+                onClick={() => setNavigationOpen(true)}
+                className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                title={language === 'fa' ? 'ناوبری' : language === 'ar' ? 'التنقل' : 'Navigation'}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </button>
 
-          {/* Quick Settings Button */}
-          <button
-            onClick={() => setQuickSettingsOpen(true)}
-            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
-            title={t.settings}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" className="w-5 h-5">
-              <path d="M0 0h24v24H0z" fill="none" />
-              <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2">
-                <path d="M3 5h4m14 0H11m-8 7h12m6 0h-2M3 19h2m16 0H9" />
-                <circle cx="9" cy="5" r="2" />
-                <circle cx="17" cy="12" r="2" />
-                <circle cx="7" cy="19" r="2" />
-              </g>
-            </svg>
-          </button>
+              {/* Quick Settings Button */}
+              <button
+                onClick={() => setQuickSettingsOpen(true)}
+                className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                title={qs.quickSettings}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" className="w-5 h-5">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2">
+                    <path d="M3 5h4m14 0H11m-8 7h12m6 0h-2M3 19h2m16 0H9" />
+                    <circle cx="9" cy="5" r="2" />
+                    <circle cx="17" cy="12" r="2" />
+                    <circle cx="7" cy="19" r="2" />
+                  </g>
+                </svg>
+              </button>
 
-          {/* Play/Pause Button */}
-          <button
-            onClick={handleTogglePlay}
-            className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 active:scale-95 transition-all shadow-lg"
-          >
-            {audioState.isPlaying ? (
-              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-              </svg>
-            ) : (
-              <svg className="w-7 h-7 mr-[-2px]" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            )}
-          </button>
+              {/* Play/Pause Button */}
+              <button
+                onClick={handleTogglePlay}
+                className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 active:scale-95 transition-all shadow-lg shrink-0"
+              >
+                {audioState.isPlaying ? (
+                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                  </svg>
+                ) : (
+                  <svg className="w-7 h-7 mr-[-2px]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
+              </button>
 
-          {/* Exit Immersive Mode Button */}
-          <button
-            onClick={() => setImmersiveMode(false)}
-            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-all"
-            title={language === 'fa' ? 'خروج از حالت مطالعه' : language === 'ar' ? 'الخروج من وضع القراءة' : 'Exit Reading Mode'}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+              {/* Full Settings Button */}
+              <button
+                onClick={() => setSettingsOpen(true)}
+                className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                title={t.settings}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                </svg>
+              </button>
+
+              {/* Exit Immersive Mode Button */}
+              <button
+                onClick={() => setImmersiveMode(false)}
+                className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-all shrink-0"
+                title={language === 'fa' ? 'خروج از حالت مطالعه' : language === 'ar' ? 'الخروج من وضع القراءة' : 'Exit Reading Mode'}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
