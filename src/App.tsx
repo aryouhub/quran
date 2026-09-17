@@ -548,7 +548,7 @@ function App() {
 
                   {/* Full Settings Button */}
                   <button
-                    onClick={() => setSettingsOpen(true)}
+                    onClick={() => setSettingsOpen(!settingsOpen)}
                     className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
                     title={t.settings}
                   >
