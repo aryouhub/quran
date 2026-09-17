@@ -11,6 +11,7 @@ import { Sidebar } from './components/Sidebar';
 import { Player } from './components/Player';
 import { AyahDisplay } from './components/AyahDisplay';
 import { SettingsPage } from './components/SettingsPage';
+import { NavigationPanel } from './components/NavigationPanel';
 
 function App() {
   const { t, language } = useLanguage();
