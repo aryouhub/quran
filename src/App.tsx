@@ -200,6 +200,93 @@ function App() {
         </aside>
       )}
 
+      {/* Sidebar - Desktop Only (Hidden in Immersive Mode) */}
+      {!immersiveMode && desktopSidebarOpen && (
+        <aside className="hidden md:block fixed top-0 right-0 w-80 lg:w-96 xl:w-[28rem] h-screen bg-theme-primary border-l border-theme z-20 transition-all duration-300">
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b border-theme">
+              <h2 className="text-theme-primary text-lg font-bold flex items-center gap-2 mb-3">
+                <svg className="w-6 h-6 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                </svg>
+                <span>{t.surahs}</span>
+              </h2>
+              
+              {/* Search */}
+              <div className="relative mb-3">
+                <input
+                  type="text"
+                  placeholder={t.searchSurah}
+                  value={surahSearch}
+                  onChange={(e) => setSurahSearch(e.target.value)}
+                  className="w-full bg-theme-secondary text-theme-primary rounded-lg px-4 py-2.5 pr-10
+                             border border-theme focus:border-emerald-500 focus:outline-none
+                             placeholder-theme-dim text-sm"
+                />
+                <svg className="absolute right-3 top-3 w-4 h-4 text-theme-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {/* Filter */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSurahFilter('all')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'all' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.all}
+                </button>
+                <button
+                  onClick={() => setSurahFilter('meccan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'meccan' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.meccan}
+                </button>
+                <button
+                  onClick={() => setSurahFilter('medinan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    surahFilter === 'medinan' ? 'bg-emerald-600 text-white' : 'bg-theme-tertiary text-theme-secondary hover:bg-theme-hover'
+                  }`}
+                >
+                  {t.medinan}
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {filteredSurahs.map((surah) => (
+                <button
+                  key={surah.number}
+                  onClick={() => handleSelectSurah(surah)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-theme-hover transition-colors text-right border-b border-theme ${
+                    selectedSurah?.number === surah.number ? 'bg-emerald-900/20 border-r-2 border-r-emerald-500' : ''
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-theme-tertiary flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
+                    {toPersianNumber(surah.number)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-theme-primary font-medium text-sm truncate">{getSurahName(surah, language)}</span>
+                      <span className="text-emerald-400 text-sm shrink-0">{surah.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <span className="text-theme-muted text-xs">{toPersianNumber(surah.numberOfAyahs)} {t.ayah}</span>
+                      <span className={`text-xs ${surah.revelationType === 'Meccan' ? 'text-amber-400/70' : 'text-blue-400/70'}`}>
+                        {surah.revelationType === 'Meccan' ? t.meccan : t.medinan}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+      )}
+
       {/* Header - Hidden in Immersive Mode */}
       {!immersiveMode && (
         <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
@@ -220,7 +307,7 @@ function App() {
       )}
 
       {/* Main Content Area - Adaptive Layout */}
-      <div className={`transition-all duration-300 ${immersiveMode ? 'pt-0 pb-0' : 'pt-14 pb-24'} ${desktopSidebarOpen ? 'md:pr-80 lg:pr-96 xl:pr-[28rem]' : ''}`}>
+      <div className={`transition-all duration-300 ${immersiveMode ? 'pt-0 pb-20' : 'pt-14 pb-24'} ${!immersiveMode && desktopSidebarOpen ? 'md:pr-80 lg:pr-96 xl:pr-[28rem]' : ''}`}>
         <main className="min-h-screen">
           {/* Surah Info - Hidden in Immersive Mode */}
           {selectedSurah && !immersiveMode && (
@@ -319,20 +406,99 @@ function App() {
         }}
       />
 
-      {/* Player - Tablet & Desktop Only */}
-      <div className={`hidden md:block fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
-        <Player
-          state={audioState}
-          surahName={selectedSurah ? getSurahName(selectedSurah, language) : 'Quran'}
-          surahEnglishName={selectedSurah?.englishName || 'Quran'}
-          onTogglePlay={handleTogglePlay}
-          onToggleRepeat={toggleRepeat}
-          onCycleSpeed={cycleSpeed}
-          onOpenQuickSettings={() => setSettingsOpen(true)}
-          onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
-          immersiveMode={immersiveMode}
-        />
-      </div>
+      {/* Player - Tablet & Desktop Only (Hidden in Immersive Mode) */}
+      {!immersiveMode && (
+        <div className={`hidden md:block fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 ${desktopSidebarOpen ? 'md:mr-80 lg:mr-96 xl:mr-[28rem]' : ''}`}>
+          <Player
+            state={audioState}
+            surahName={selectedSurah ? getSurahName(selectedSurah, language) : 'Quran'}
+            surahEnglishName={selectedSurah?.englishName || 'Quran'}
+            onTogglePlay={handleTogglePlay}
+            onToggleRepeat={toggleRepeat}
+            onCycleSpeed={cycleSpeed}
+            onOpenQuickSettings={() => setSettingsOpen(true)}
+            onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
+            immersiveMode={immersiveMode}
+          />
+        </div>
+      )}
+
+      {/* Floating Controls - Immersive Mode Only */}
+      {immersiveMode && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-theme-secondary/95 backdrop-blur-lg rounded-full px-5 py-3 shadow-2xl border border-theme">
+          {/* Surahs Button */}
+          <button
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                setSidebarOpen(true);
+              } else {
+                setDesktopSidebarOpen(true);
+              }
+            }}
+            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
+            title={t.surahs}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </button>
+
+          {/* Navigation Button */}
+          <button
+            onClick={() => setNavigationOpen(true)}
+            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
+            title={language === 'fa' ? 'ناوبری' : language === 'ar' ? 'التنقل' : 'Navigation'}
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </button>
+
+          {/* Quick Settings Button */}
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
+            title={t.settings}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" className="w-5 h-5">
+              <path d="M0 0h24v24H0z" fill="none" />
+              <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2">
+                <path d="M3 5h4m14 0H11m-8 7h12m6 0h-2M3 19h2m16 0H9" />
+                <circle cx="9" cy="5" r="2" />
+                <circle cx="17" cy="12" r="2" />
+                <circle cx="7" cy="19" r="2" />
+              </g>
+            </svg>
+          </button>
+
+          {/* Play/Pause Button */}
+          <button
+            onClick={handleTogglePlay}
+            className="w-14 h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 active:scale-95 transition-all shadow-lg"
+          >
+            {audioState.isPlaying ? (
+              <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            ) : (
+              <svg className="w-7 h-7 mr-[-2px]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Exit Immersive Mode Button */}
+          <button
+            onClick={() => setImmersiveMode(false)}
+            className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-all"
+            title={language === 'fa' ? 'خروج از حالت مطالعه' : language === 'ar' ? 'الخروج من وضع القراءة' : 'Exit Reading Mode'}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
