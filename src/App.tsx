@@ -12,6 +12,7 @@ import { Player } from './components/Player';
 import { AyahDisplay } from './components/AyahDisplay';
 import { SettingsPage } from './components/SettingsPage';
 import { NavigationPanel } from './components/NavigationPanel';
+import { QuickSettingsPanel } from './components/QuickSettingsPanel';
 
 function App() {
   const { t, language } = useLanguage();
@@ -20,6 +21,7 @@ function App() {
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [surahFilter, setSurahFilter] = useState<'all' | 'meccan' | 'medinan'>('all');
@@ -416,11 +418,19 @@ function App() {
             onTogglePlay={handleTogglePlay}
             onToggleRepeat={toggleRepeat}
             onCycleSpeed={cycleSpeed}
-            onOpenQuickSettings={() => setSettingsOpen(true)}
+            onOpenQuickSettings={() => setQuickSettingsOpen(true)}
             onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
             immersiveMode={immersiveMode}
           />
         </div>
+      )}
+
+      {/* Quick Settings Panel */}
+      {quickSettingsOpen && (
+        <QuickSettingsPanel
+          isOpen={quickSettingsOpen}
+          onClose={() => setQuickSettingsOpen(false)}
+        />
       )}
 
       {/* Floating Controls - Immersive Mode Only */}
@@ -456,7 +466,7 @@ function App() {
 
           {/* Quick Settings Button */}
           <button
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => setQuickSettingsOpen(true)}
             className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
             title={t.settings}
           >
