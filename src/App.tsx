@@ -13,6 +13,7 @@ import { AyahDisplay } from './components/AyahDisplay';
 import { SettingsPage } from './components/SettingsPage';
 import { NavigationPanel } from './components/NavigationPanel';
 import { QuickSettingsPanel } from './components/QuickSettingsPanel';
+import { BottomNavigation } from './components/BottomNavigation';
 
 function App() {
   const { t, language } = useLanguage();
@@ -374,6 +375,23 @@ function App() {
         />
       </div>
 
+      {/* Bottom Navigation - Mobile Only */}
+      {!immersiveMode && (
+        <BottomNavigation
+          onOpenSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onOpenNavigation={() => setNavigationOpen(!navigationOpen)}
+          onOpenSettings={() => setSettingsOpen(!settingsOpen)}
+          onOpenQuickSettings={() => setQuickSettingsOpen(!quickSettingsOpen)}
+          onToggleImmersive={() => setImmersiveMode(!immersiveMode)}
+          immersiveMode={immersiveMode}
+          audioState={audioState}
+          onTogglePlay={handleTogglePlay}
+          onNext={nextAyah}
+          onPrev={prevAyah}
+          surahName={selectedSurah ? getSurahName(selectedSurah, language) : undefined}
+        />
+      )}
+
       {/* Settings Page */}
       {settingsOpen && (
         <SettingsPage
@@ -488,13 +506,23 @@ function App() {
                   {/* Surahs Button */}
                   <button
                     onClick={() => {
+                      // Close other panels first
+                      setNavigationOpen(false);
+                      setQuickSettingsOpen(false);
+                      setSettingsOpen(false);
+                      
+                      // Toggle sidebar
                       if (window.innerWidth < 768) {
                         setSidebarOpen(!sidebarOpen);
                       } else {
                         setDesktopSidebarOpen(!desktopSidebarOpen);
                       }
                     }}
-                    className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                      sidebarOpen || desktopSidebarOpen
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-theme-tertiary text-theme-primary hover:bg-emerald-500/20 hover:text-emerald-400'
+                    }`}
                     title={t.surahs}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,8 +532,24 @@ function App() {
 
                   {/* Navigation Button */}
                   <button
-                    onClick={() => setNavigationOpen(!navigationOpen)}
-                    className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                    onClick={() => {
+                      // Close other panels first
+                      if (window.innerWidth < 768) {
+                        setSidebarOpen(false);
+                      } else {
+                        setDesktopSidebarOpen(false);
+                      }
+                      setQuickSettingsOpen(false);
+                      setSettingsOpen(false);
+                      
+                      // Toggle navigation
+                      setNavigationOpen(!navigationOpen);
+                    }}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                      navigationOpen
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-theme-tertiary text-theme-primary hover:bg-emerald-500/20 hover:text-emerald-400'
+                    }`}
                     title={language === 'fa' ? 'ناوبری' : language === 'ar' ? 'التنقل' : 'Navigation'}
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -515,8 +559,24 @@ function App() {
 
                   {/* Quick Settings Button */}
                   <button
-                    onClick={() => setQuickSettingsOpen(!quickSettingsOpen)}
-                    className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                    onClick={() => {
+                      // Close other panels first
+                      if (window.innerWidth < 768) {
+                        setSidebarOpen(false);
+                      } else {
+                        setDesktopSidebarOpen(false);
+                      }
+                      setNavigationOpen(false);
+                      setSettingsOpen(false);
+                      
+                      // Toggle quick settings
+                      setQuickSettingsOpen(!quickSettingsOpen);
+                    }}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                      quickSettingsOpen
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-theme-tertiary text-theme-primary hover:bg-emerald-500/20 hover:text-emerald-400'
+                    }`}
                     title={qs.quickSettings}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" className="w-5 h-5">
@@ -548,8 +608,24 @@ function App() {
 
                   {/* Full Settings Button */}
                   <button
-                    onClick={() => setSettingsOpen(!settingsOpen)}
-                    className="w-11 h-11 rounded-full bg-theme-tertiary text-theme-primary flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-400 transition-all shrink-0"
+                    onClick={() => {
+                      // Close other panels first
+                      if (window.innerWidth < 768) {
+                        setSidebarOpen(false);
+                      } else {
+                        setDesktopSidebarOpen(false);
+                      }
+                      setNavigationOpen(false);
+                      setQuickSettingsOpen(false);
+                      
+                      // Toggle settings
+                      setSettingsOpen(!settingsOpen);
+                    }}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                      settingsOpen
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-theme-tertiary text-theme-primary hover:bg-emerald-500/20 hover:text-emerald-400'
+                    }`}
                     title={t.settings}
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
